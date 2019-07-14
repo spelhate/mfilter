@@ -1,0 +1,27 @@
+{
+  "name": "mfilter",
+  "version": "1.0.0",
+  "description": "Very simple map source filter ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build --public-url . index.html"
+  },
+  "author": "spelhate",
+  "license": "GNU General Public License v3.0",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "eventbusjs": "^0.2.0",
+    "fuse.js": "^3.4.5",
+    "jquery": "^3.4.1",
+    "modules": "^0.4.0",
+    "mustache": "^3.0.1",
+    "ol": "^5.3.3",
+    "popper.js": "^1.15.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.3",
+    "sass": "^1.22.3"
+  }
+}
