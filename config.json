@@ -1,0 +1,13 @@
+{
+ "map": {
+    "url":"https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+    "attributions": "Map tiles by  <a href=\"https://cartodb.com/attributions\">CartoDb</a>, under  <a href=\"https://creativecommons.org/licenses/by/3.0/\">CC BY 3.0 </a>",
+    "center": [-1.5, 48],
+    "zoom": 7
+ },
+ "store": {
+    "keys" : ["properties.nom"],
+    "url": "https://ows.region-bretagne.fr/geoserver/rb/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GETFEATURE&TYPENAME=lycee&outputFormat=application/json&srsName=EPSG:3857",
+    "template": "template.mst"
+ }
+}
