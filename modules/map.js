@@ -1,71 +1,82 @@
 // modules/map.js
 
 import 'ol/ol.css';
-import {Map, View} from 'ol';
+import {
+ Map,
+ View
+} from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import {transform} from 'ol/proj.js';
+import {
+ transform
+} from 'ol/proj.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
-import {Vector as VectorLayer} from 'ol/layer.js';
-import {OSM, Vector as VectorSource} from 'ol/source.js';
+import {
+ Vector as VectorLayer
+} from 'ol/layer.js';
+import {
+ OSM,
+ Vector as VectorSource
+} from 'ol/source.js';
 
 var busEvent = require('./bus');
 
-var _config = {};
+'use strict';
 
-var _map;
 
-function loadFeatures (e) {
-    var features = e.target.data;
-    var vectorSource = new VectorSource({
-      features: (new GeoJSON()).readFeatures(features)
-   });
-   var vectorLayer = new VectorLayer({
-    source: vectorSource
+var Fmap = class {
+ constructor(config) {
+  this.config = config;
+  this.className = "FMAP";
+  this.map = null;
+  this.initMap();
+ }
+
+ initMap() {
+
+  this.map = new Map({
+   target: 'map',
+   layers: [
+    new TileLayer({
+     source: new OSM({
+      attributions: [this.config.attributions],
+      url: this.config.url
+     })
+    })
+   ],
+   view: new View({
+    center: transform(this.config.center, 'EPSG:4326', 'EPSG:3857'),
+    zoom: this.config.zoom
+   })
   });
 
-  _map.addLayer(vectorLayer);
+  busEvent.on('storeLoaded', this.loadFeatures, this);
+  busEvent.on('storeFiltered', this.filterFeatures, this);
+
+  busEvent.fire("mapLoaded", this);
+
+ }
+
+ loadFeatures(e) {
+  var features = e.target.data;
+  var vectorSource = new VectorSource({
+   features: (new GeoJSON()).readFeatures(features)
+  });
+  var vectorLayer = new VectorLayer({
+   source: vectorSource
+  });
+  this.map.addLayer(vectorLayer);
   var extent = vectorSource.getExtent();
-  _map.getView().fit(extent, _map.getSize());
-    
-    
-}
+  this.map.getView().fit(extent, this.map.getSize());
 
-function initMap(config) {
-  this.className = "MAP";
-  this.config = _config = config;
-  _map = new Map({
-      target: 'map',
-      layers: [
-        new TileLayer({
-          source: new OSM({
-              attributions: [ config.attributions],
-              url: config.url
-            })
-        })
-      ],
-      view: new View({
-        center: transform(config.center, 'EPSG:4326', 'EPSG:3857'),
-        zoom: config.zoom
-      })
-    });
-    this.map = _map;
-    
-    busEvent.on('storeLoaded', loadFeatures);
-    
-    
-    busEvent.fire("mapLoaded", this);
-    
+ }
+
+ filterFeatures(e) {
+  // todo
+ }
+
 }
 
 
-module.exports = {
-  initMap: initMap
-};
 
 
-
-
-
-
-
-
+module.exports = Fmap;
