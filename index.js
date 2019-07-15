@@ -7,18 +7,13 @@ import 'bootstrap/js/dist/util';
 var busEvent = require('./modules/bus');
 
 const Fmap = require('./modules/map');
-var store = require('./modules/store');
-
-var handler = function(e) {
-    console.log(e);
-};
-
-busEvent.on('mapLoaded', handler);
+const Fstore = require('./modules/store');
 
 
-$.get( "config.json", function( config ) {
+
+$.get( "apps/config.json", function( config ) {
   let map = new Fmap(config.map);
-  store.initStore(config.store);
+  let store = new Fstore(config.store);
   
 });
 
