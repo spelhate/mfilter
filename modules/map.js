@@ -19,6 +19,8 @@ import {
     Vector as VectorSource
 } from 'ol/source.js';
 
+import {Circle, Fill, Stroke, Style} from 'ol/style.js';
+
 var busEvent = require('./bus');
 
 'use strict';
@@ -39,7 +41,47 @@ var Fmap = class {
         this.className = "Fmap";
         this.map = null;
         this.source = null;
+        this.filteredIDs = [];
         this.initMap();
+        
+        this.style0 = [new Style({
+            image: new Circle({
+                fill: new Fill({
+                    color: 'rgba(0, 0, 0, 0)'
+                }),
+                stroke: new Stroke({
+                    color: 'rgba(0, 0, 0, 0)'
+                }),
+                radius: 1
+            })
+        })];
+        
+        this.style1 = [new Style({
+            image: new Circle({
+                fill: new Fill({
+                    color: 'rgba(99, 110, 114,1.0)'
+                }),
+                stroke: new Stroke({
+                    color: "#ffffff",
+                    width: 4
+                }),
+                radius: 9
+            })
+        })];
+        
+        this.style2 = [ new Style({
+            image: new Circle({
+                fill: new Fill({
+                    color: 'rgba(255, 118, 117,1.0)'
+                }),
+                stroke: new Stroke({
+                    color: "#ffffff",
+                    width: 4
+                }),
+                radius: 9
+            })
+        })];
+        
     }
 
     initMap() {
@@ -73,7 +115,8 @@ var Fmap = class {
             features: (new GeoJSON()).readFeatures(features)
         });
         var vectorLayer = new VectorLayer({
-            source: this.source
+            source: this.source,
+            style: this.style1
         });
         this.map.addLayer(vectorLayer);
         var extent = this.source.getExtent();
@@ -87,18 +130,32 @@ var Fmap = class {
         e.stopPropagation();
         if (e.map && this.source) {
             var extent = e.map.getView().calculateExtent(e.map.getSize());
-            console.log(extent);
-            var filteredIDs = [];
+            console.log(extent);            
+            var _filteredIDs = [];
             this.source.forEachFeatureInExtent(extent, function(feature) {
-                filteredIDs.push(feature.getProperties().code_rne);
+                _filteredIDs.push(feature.getId());
             });
-            busEvent.fire("mapChanged", filteredIDs );
+            this.filteredIDs = _filteredIDs;
+            busEvent.fire("mapChanged", this.filteredIDs );
         }
 
     }   
 
     filterFeatures(e) {
-        // todo
+        var _filteredIDs = e.target.filteredIDs;
+        if (_filteredIDs.length > 0 ) {
+            var style0 = this.style0;
+            var style1 = this.style1;
+            var style2 = this.style2;
+            this.source.forEachFeature(function(feature) {
+                if (_filteredIDs.includes(feature.getId())) {
+                    feature.setStyle(style2);
+                } else {
+                    feature.setStyle(style0);
+                }
+            });
+            this.filteredIDs = _filteredIDs;
+        }
     }
 
 }

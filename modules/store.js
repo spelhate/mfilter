@@ -24,6 +24,7 @@ var Fstore = class {
         this.template = null;
         this.fuse = null;
         this.data = [];
+        this.filteredIDs = [];
         this.fuseOptions = {
           shouldSort: true,
           threshold: 0.2,
@@ -31,7 +32,7 @@ var Fstore = class {
           distance: 100,
           maxPatternLength: 32,
           minMatchCharLength: 1,
-          keys: options.keys
+          keys: options.searchkeys
         }
         
         this.initStore();
@@ -66,18 +67,19 @@ var Fstore = class {
     searchFeatures (e) {
         var value = $("#txt-search").val();
         if (value.length > 3) {
-            var _result = this.fuse.search(value).map(a => a.properties.code_rne);
-            console.log(_result);
-            this.filterFeatures({"target": _result});
+            this.filteredIDs = this.fuse.search(value).map(a => a[this.options.uid]);
+            console.log(this.filteredIDs);
+            this.filterFeatures({"target": this.filteredIDs});
         }
     }
     
     filterFeatures(e) {
         console.log(e);
         var featuresIDs = e.target;
+        var uid = this.options.uid;
         var _callback = function(elem, ind, Ar) {
             var ret =false;
-            if (featuresIDs.indexOf(elem.properties.code_rne) > -1) {
+            if (featuresIDs.indexOf(elem[uid]) > -1) {
                 ret =true;
             }
             return ret;
@@ -87,6 +89,7 @@ var Fstore = class {
         $("#store").children().remove();
         $("#store").append(render);
         console.log(_filtered);
+        busEvent.fire("storeFiltered", this);
     };
 }
 

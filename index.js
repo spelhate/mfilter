@@ -13,7 +13,7 @@ const Fstore = require('./modules/store');
 
 $.get( "apps/config.json", function( config ) {
   let map = new Fmap(config.map);
-  let store = new Fstore(config.store);
+  let store = new Fstore(config.data);
   
 });
 
