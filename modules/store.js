@@ -1,7 +1,7 @@
 /**
  * @module store.js
  */
- 
+
 import Fuse from 'fuse.js';
 import Mustache from 'mustache';
 
@@ -20,11 +20,23 @@ var Fstore = class {
      */
     constructor(options) {
         this.className = "Fstore";
-        this.options = options;        
+        this.options = options;
         this.template = null;
         this.fuse = null;
         this.data = [];
         this.filteredIDs = [];
+        this.activefilter = false;
+        this.toast = [
+            '<div id="toast" class="toast" role="alert" data-autohide="false" aria-live="assertive" aria-atomic="true">',
+                '<div class="toast-header">',
+                    '<strong class="mr-auto">Filtre actif</strong>',
+                    '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">',
+                      '<span aria-hidden="true">&times;</span>',
+                    '</button>',
+                '</div>',
+                '<div id="toast-filter" class="toast-body">Aucun filtre</div>',
+            '</div>'
+        ].join("");
         this.fuseOptions = {
           shouldSort: true,
           threshold: 0.2,
@@ -34,18 +46,20 @@ var Fstore = class {
           minMatchCharLength: 1,
           keys: options.searchkeys
         }
-        
+
         this.initStore();
     }
-    
+
     initStore() {
+      $("#notifications").append(this.toast);
+      $("#toast .close").click(this.removeFilter.bind(this));
       $("#btn-search").click(this.searchFeatures.bind(this));
       $.ajax({
           type: "GET",
           url: this.options.template,
           context: this,
           success: function( mst ) {
-            this.template = mst;   
+            this.template = mst;
           }
       });
       $.ajax({
@@ -60,19 +74,29 @@ var Fstore = class {
             busEvent.on('mapChanged', this.filterFeatures, this);
             busEvent.fire("storeLoaded", this);
           }
-      });  
-       
+      });
+
     }
     
+    removeFilter (e) {
+        this.filteredIDs = [];
+        this.activefilter = false;
+        var render = Mustache.render(this.template, {"features": this.data.features });
+        $("#store").children().remove();
+        $("#store").append(render);
+        busEvent.fire("removeFilter", this);
+    }
+
     searchFeatures (e) {
         var value = $("#txt-search").val();
         if (value.length > 3) {
             this.filteredIDs = this.fuse.search(value).map(a => a[this.options.uid]);
-            console.log(this.filteredIDs);
             this.filterFeatures({"target": this.filteredIDs});
+            $("#txt-search").val("");
+            $("#toast-filter").text(value);
         }
     }
-    
+
     filterFeatures(e) {
         console.log(e);
         var featuresIDs = e.target;
@@ -88,7 +112,9 @@ var Fstore = class {
         var render = Mustache.render(this.template, {"features": _filtered });
         $("#store").children().remove();
         $("#store").append(render);
-        console.log(_filtered);
+        console.log(_filtered);        
+        $("#toast").toast('show');
+        this.activefilter = true;
         busEvent.fire("storeFiltered", this);
     };
 }
