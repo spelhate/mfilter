@@ -43,7 +43,7 @@ var Fmap = class {
         this.source = null;
         this.filteredIDs = [];
         this.initMap();
-        
+
         this.style0 = [new Style({
             image: new Circle({
                 fill: new Fill({
@@ -55,7 +55,7 @@ var Fmap = class {
                 radius: 1
             })
         })];
-        
+
         this.style1 = [new Style({
             image: new Circle({
                 fill: new Fill({
@@ -68,7 +68,7 @@ var Fmap = class {
                 radius: 9
             })
         })];
-        
+
         this.style2 = [ new Style({
             image: new Circle({
                 fill: new Fill({
@@ -81,7 +81,7 @@ var Fmap = class {
                 radius: 9
             })
         })];
-        
+
     }
 
     initMap() {
@@ -104,7 +104,8 @@ var Fmap = class {
 
         this.map.on('moveend', this.updateExtent.bind(this));
 
-        busEvent.on('storeLoaded', this.loadFeatures, this);        
+        busEvent.on('storeLoaded', this.loadFeatures, this);
+		busEvent.on('removeFilter', this.removeFilter, this);
         busEvent.fire("mapLoaded", this);
 
     }
@@ -130,7 +131,7 @@ var Fmap = class {
         e.stopPropagation();
         if (e.map && this.source) {
             var extent = e.map.getView().calculateExtent(e.map.getSize());
-            console.log(extent);            
+            console.log(extent);
             var _filteredIDs = [];
             this.source.forEachFeatureInExtent(extent, function(feature) {
                 _filteredIDs.push(feature.getId());
@@ -139,7 +140,7 @@ var Fmap = class {
             busEvent.fire("mapChanged", this.filteredIDs );
         }
 
-    }   
+    }
 
     filterFeatures(e) {
         var _filteredIDs = e.target.filteredIDs;
@@ -157,6 +158,16 @@ var Fmap = class {
             this.filteredIDs = _filteredIDs;
         }
     }
+
+	removeFilter(e) {
+		var style1 = this.style1;
+		this.source.forEachFeature(function(feature) {
+			feature.setStyle(style1);
+		});
+		this.filteredIDs = [];
+
+	}
+
 
 }
 

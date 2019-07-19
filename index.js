@@ -10,12 +10,18 @@ const Fmap = require('./modules/map');
 const Fstore = require('./modules/store');
 
 
-
-$.get( "apps/config.json", function( config ) {
-  let map = new Fmap(config.map);
-  let store = new Fstore(config.data);
-  
-});
+ $.ajax({
+	type: "GET",
+	url: "config.json",
+	success: function( config ) {
+	  $("title").text(config.title);
+	  let map = new Fmap(config.map);
+	  let store = new Fstore(config.data);
+	},
+	error: function (a, b, c) {
+	  console.log(a, b, c);
+	}
+  });
 
 
 

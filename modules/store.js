@@ -77,13 +77,11 @@ var Fstore = class {
       });
 
     }
-    
+
     removeFilter (e) {
         this.filteredIDs = [];
         this.activefilter = false;
-        var render = Mustache.render(this.template, {"features": this.data.features });
-        $("#store").children().remove();
-        $("#store").append(render);
+		$(".item:not(.selected)").addClass("selected");
         busEvent.fire("removeFilter", this);
     }
 
@@ -91,7 +89,7 @@ var Fstore = class {
         var value = $("#txt-search").val();
         if (value.length > 3) {
             this.filteredIDs = this.fuse.search(value).map(a => a[this.options.uid]);
-            this.filterFeatures({"target": this.filteredIDs});
+            this.filterFeatures({"target": this.filteredIDs, "type": "search"});
             $("#txt-search").val("");
             $("#toast-filter").text(value);
         }
@@ -100,21 +98,15 @@ var Fstore = class {
     filterFeatures(e) {
         console.log(e);
         var featuresIDs = e.target;
-        var uid = this.options.uid;
-        var _callback = function(elem, ind, Ar) {
-            var ret =false;
-            if (featuresIDs.indexOf(elem[uid]) > -1) {
-                ret =true;
-            }
-            return ret;
-        };
-        var _filtered = this.data.features.filter(_callback);
-        var render = Mustache.render(this.template, {"features": _filtered });
-        $("#store").children().remove();
-        $("#store").append(render);
-        console.log(_filtered);        
-        $("#toast").toast('show');
-        this.activefilter = true;
+		$(".item.selected").removeClass("selected");
+		featuresIDs.forEach(function(id) {
+			$(document.getElementById(id)).addClass("selected");
+
+		});
+		if (e.type && e.type === "search") {
+			$("#toast").toast('show');
+			this.activefilter = true;
+		}
         busEvent.fire("storeFiltered", this);
     };
 }
