@@ -71,12 +71,19 @@ var Fstore = class {
             this.fuse = new Fuse(data.features, this.fuseOptions);
             var render = Mustache.render(this.template, data);
             $("#store").append(render);
+			$(".item").click(this.onItemClick.bind(this));
             busEvent.on('mapChanged', this.filterFeatures, this);
             busEvent.fire("storeLoaded", this);
           }
       });
 
     }
+	
+	onItemClick (e) {
+		$(".item.highlighted").removeClass("highlighted");
+		$(document.getElementById(e.currentTarget.id)).addClass("highlighted");
+		busEvent.fire("itemClicked", e.currentTarget.id);
+	}
 
     removeFilter (e) {
         this.filteredIDs = [];

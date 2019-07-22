@@ -187,5 +187,9 @@ section .section-title {
 
 .item.selected {
 	display: block;
+	cursor: pointer;
+}
+.item.highlighted {
+    border: red solid 1px;
 }
 </style>
