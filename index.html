@@ -3,27 +3,31 @@
 <head>
     <title>Lycée en Bretagne</title>
     <style>
-      #map {
-        width: 100%;
-        height: 450px;
-      }
-	  div#notifications {
-		position: sticky;
-		margin-top: -100px;
-		padding-left: 10px;
-	}
-
-	form {
-		padding: 25px 25px 10px 25px;
-	}
+    	#map {
+			position: relative;
+			width: 100%;
+			height: 450px;
+			z-index: 0;
+      	}
+	  	div#notifications {
+			position: absolute;
+			z-index: 50;
+			bottom: 0.5em;
+			left: 0.5em;
+		}
+		form {
+			padding: 25px 25px 10px 25px;
+		}
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="map"></div>
+    <div id="map">
+		<div id="notifications"></div>
+	</div>
 	<div id="marker"></div>
-    <div id="notifications"></div>
+    
     <div id="store">
 		<form class="form-inline my-2 my-lg-0">
 		  <input id="txt-search" class="form-control mr-sm-2" type="search" placeholder="Filtrer" aria-label="Search">
