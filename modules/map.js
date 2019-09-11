@@ -119,7 +119,8 @@ var Fmap = class {
         this.map.on('moveend', this.updateExtent.bind(this));
 
         busEvent.on('storeLoaded', this.loadFeatures, this);
-		busEvent.on('removeFilter', this.removeFilter, this);
+        busEvent.on('removeFilter', this.removeFilter, this);
+        
         busEvent.fire("mapLoaded", this);
 
     }
@@ -137,7 +138,8 @@ var Fmap = class {
         var extent = this.source.getExtent();
         this.map.getView().fit(extent, this.map.getSize());
         busEvent.on('storeFiltered', this.filterFeatures, this);
-		busEvent.on('itemClicked', this.selectFeature, this);
+        busEvent.on('itemClicked', this.selectFeature, this);
+        busEvent.on('inputchanged',this.filterFeatures,this);
 
     }
 
@@ -163,22 +165,49 @@ var Fmap = class {
 		$("#marker").show();
 	}
 	
-	unSelectFeature(e) {
-		this.selectedFeature
+	unSelectFeature() {
+        $("#marker").hide();
 	}
 
     filterFeatures(e) {
         var _filteredIDs = e.target.filteredIDs;
-        if (_filteredIDs.length > 0 ) {
-            var styles = this.styles;            
+        var styles = this.styles;
+        var parent = this;
+        if (_filteredIDs.length > 0 ) {        
             this.source.forEachFeature(function(feature) {
                 if (_filteredIDs.includes(feature.getId())) {
                     feature.setStyle(styles[2]);
                 } else {
                     feature.setStyle(styles[0]);
+                    let feat = JSON.stringify(feature.getGeometry().getFirstCoordinate());
+                    let marque = JSON.stringify(parent.marker.getPosition());
+                    if(marque==feat)
+                    {
+                        parent.unSelectFeature();
+                    }
+                    
                 }
             });
             this.filteredIDs = _filteredIDs;
+        }
+        else
+        {
+            var filtre = $('#toast-filter').text();
+            this.source.forEachFeature(function(feature) {
+                if(filtre=="")
+                {
+                    feature.setStyle(styles[1]);
+                }
+                else
+                {
+                    feature.setStyle(styles[0]);
+
+                   
+                    
+                }
+                    
+            });
+            
         }
     }
 

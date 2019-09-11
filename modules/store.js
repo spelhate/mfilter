@@ -55,6 +55,12 @@ var Fstore = class {
       $("#notifications").append(this.toast);
       $("#toast .close").click(this.removeFilter.bind(this));
       $("#btn-search").click(this.searchFeatures.bind(this));
+      $(document).on("keydown", "#txt-search", function (e)  {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $("#btn-search").click();
+        }
+      });
       $.ajax({
           type: "GET",
           url: this.options.template,
@@ -101,6 +107,7 @@ var Fstore = class {
             this.filterFeatures({"target": this.filteredIDs, "type": "search"});
             $("#txt-search").val("");
             $("#toast-filter").text(value);
+            busEvent.fire("inputchanged",this);
         }
     }
 
@@ -140,12 +147,14 @@ var Fstore = class {
                 }            
             }
         }
-		if (e.type && e.type === "search") {
+        if (e.type && e.type === "search") {
 			$("#toast").toast('show');
 			this.activefilter = true;
 		}
         busEvent.fire("storeFiltered", this);
+
     };
+   
 }
 
 module.exports = Fstore;
