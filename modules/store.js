@@ -26,6 +26,7 @@ var Fstore = class {
         this.data = [];
         this.filteredIDs = [];
         this.activefilter = false;
+        this.filteredlocations = [];
         this.toast = [
             '<div id="toast" class="toast" role="alert" data-autohide="false" aria-live="assertive" aria-atomic="true">',
                 '<div class="toast-header">',
@@ -34,7 +35,7 @@ var Fstore = class {
                       '<span aria-hidden="true">&times;</span>',
                     '</button>',
                 '</div>',
-                '<div id="toast-filter" class="toast-body">Aucun filtre</div>',
+                '<div id="toast-filter" class="toast-body"></div>',
             '</div>'
         ].join("");
         this.fuseOptions = {
@@ -88,6 +89,7 @@ var Fstore = class {
     removeFilter (e) {
         this.filteredIDs = [];
         this.activefilter = false;
+        $("#toast-filter").text("");
 		$(".item:not(.selected)").addClass("selected");
         busEvent.fire("removeFilter", this);
     }
@@ -104,12 +106,40 @@ var Fstore = class {
 
     filterFeatures(e) {
         console.log(e);
+        var toastfilter = $("#toast-filter");
         var featuresIDs = e.target;
-		$(".item.selected").removeClass("selected");
-		featuresIDs.forEach(function(id) {
-			$(document.getElementById(id)).addClass("selected");
-
-		});
+        if(toastfilter.text().length==0)
+        {
+            this.filteredlocations=[];
+            $(".item.selected").removeClass("selected");
+        
+            featuresIDs.forEach(function(id) {
+                $(document.getElementById(id)).addClass("selected");
+                
+            });
+        }
+        else
+        {
+            var tablocations = [];
+            if(this.filteredlocations.length==0)
+            {
+                $(".selected").each(function() {
+                    tablocations.push($(this).attr('id'));
+                });
+                this.filteredlocations = tablocations;
+            }
+            $(".item.selected").removeClass("selected");
+            for(let i =0;i<featuresIDs.length;i++)
+            {
+                for(let j=0;j<this.filteredlocations.length;j++)
+                {
+                    if(featuresIDs[i]==this.filteredlocations[j])
+                    {
+                        $(document.getElementById(featuresIDs[i])).addClass("selected");
+                    }
+                }            
+            }
+        }
 		if (e.type && e.type === "search") {
 			$("#toast").toast('show');
 			this.activefilter = true;
