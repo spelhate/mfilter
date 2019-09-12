@@ -25,6 +25,7 @@ import Overlay from 'ol/Overlay';
 
 var busEvent = require('./bus');
 
+
 'use strict';
 
 
@@ -115,13 +116,11 @@ var Fmap = class {
                 zoom: this.options.zoom
             })
         });
-
         this.map.on('moveend', this.updateExtent.bind(this));
-
         busEvent.on('storeLoaded', this.loadFeatures, this);
         busEvent.on('removeFilter', this.removeFilter, this);
-        
         busEvent.fire("mapLoaded", this);
+        
 
     }
 
@@ -140,7 +139,12 @@ var Fmap = class {
         busEvent.on('storeFiltered', this.filterFeatures, this);
         busEvent.on('itemClicked', this.selectFeature, this);
         busEvent.on('inputchanged',this.filterFeatures,this);
-
+        busEvent.on('emulchanged',this.emulation,this);       
+    }
+    emulation(e)
+    {
+        var view = this.map.getView();
+        view.animate({zoom: view.getZoom()+0.00001,duration:0});
     }
 
     updateExtent(e) {
@@ -155,6 +159,7 @@ var Fmap = class {
             });
             this.filteredIDs = _filteredIDs;
             busEvent.fire("mapChanged", this.filteredIDs );
+            
         }
 
     }
@@ -167,6 +172,7 @@ var Fmap = class {
 	
 	unSelectFeature() {
         $("#marker").hide();
+        $(".highlighted").removeClass("highlighted");
 	}
 
     filterFeatures(e) {
@@ -201,9 +207,7 @@ var Fmap = class {
                 else
                 {
                     feature.setStyle(styles[0]);
-
-                   
-                    
+ 
                 }
                     
             });

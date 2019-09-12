@@ -78,7 +78,7 @@ var Fstore = class {
             this.fuse = new Fuse(data.features, this.fuseOptions);
             var render = Mustache.render(this.template, data);
             $("#store").append(render);
-			$(".item").click(this.onItemClick.bind(this));
+            $(".item").click(this.onItemClick.bind(this));
             busEvent.on('mapChanged', this.filterFeatures, this);
             busEvent.fire("storeLoaded", this);
           }
@@ -104,22 +104,21 @@ var Fstore = class {
         var value = $("#txt-search").val();
         if (value.length > 3) {
             this.filteredIDs = this.fuse.search(value).map(a => a[this.options.uid]);
-            this.filterFeatures({"target": this.filteredIDs, "type": "search"});
-            $("#txt-search").val("");
             $("#toast-filter").text(value);
+            $("#txt-search").val("");
+            this.filterFeatures({"target": this.filteredIDs,"type": "search"});
             busEvent.fire("inputchanged",this);
+            busEvent.fire('emulchanged',this);
         }
     }
 
     filterFeatures(e) {
-        console.log(e);
-        var toastfilter = $("#toast-filter");
+        var toastfilter = $("#toast-filter").text();
         var featuresIDs = e.target;
-        if(toastfilter.text().length==0)
+        if(toastfilter=="")
         {
             this.filteredlocations=[];
             $(".item.selected").removeClass("selected");
-        
             featuresIDs.forEach(function(id) {
                 $(document.getElementById(id)).addClass("selected");
                 
@@ -127,25 +126,23 @@ var Fstore = class {
         }
         else
         {
-            var tablocations = [];
             if(this.filteredlocations.length==0)
             {
-                $(".selected").each(function() {
-                    tablocations.push($(this).attr('id'));
-                });
-                this.filteredlocations = tablocations;
+                this.filteredlocations=featuresIDs;
             }
             $(".item.selected").removeClass("selected");
-            for(let i =0;i<featuresIDs.length;i++)
+            for(let i=0;i<this.filteredlocations.length;i++)
             {
-                for(let j=0;j<this.filteredlocations.length;j++)
+                for(let j=0;j<featuresIDs.length;j++)
                 {
-                    if(featuresIDs[i]==this.filteredlocations[j])
+                    if(this.filteredlocations[i]==featuresIDs[j])
                     {
-                        $(document.getElementById(featuresIDs[i])).addClass("selected");
+                        $(document.getElementById(this.filteredlocations[i])).addClass("selected");
                     }
-                }            
+                }
             }
+            
+                      
         }
         if (e.type && e.type === "search") {
 			$("#toast").toast('show');
