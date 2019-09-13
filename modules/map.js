@@ -2,6 +2,8 @@
  * @module map.js
  */
 import 'ol/ol.css';
+import LayerGroup from 'ol/layer/Group';
+import Group from 'ol/layer.js';
 import {
     Map,
     View
@@ -99,7 +101,6 @@ var Fmap = class {
 		var overlays = [];        
         this.marker = new Overlay({ positioning: 'bottom-center', element: $("#marker")[0], stopEvent: false})
         overlays.push(this.marker);
-
         this.map = new Map({
             target: 'map',
             layers: [
@@ -125,7 +126,18 @@ var Fmap = class {
     }
 
     loadFeatures(e) {
+        this.unSelectFeature();
+        var parent =this;
         var features = e.target.data;
+        if(this.map.getLayers().array_.length==2)
+        {
+            this.map.getLayers().forEach(function(layer){
+                if(layer.type=="VECTOR")
+                {
+                    parent.map.removeLayer(layer);
+                }
+            });
+        }
         this.source = new VectorSource({
             features: (new GeoJSON()).readFeatures(features)
         });
@@ -134,12 +146,13 @@ var Fmap = class {
             style: this.styles[1]
         });
         this.map.addLayer(vectorLayer);
+       
         var extent = this.source.getExtent();
         this.map.getView().fit(extent, this.map.getSize());
         busEvent.on('storeFiltered', this.filterFeatures, this);
         busEvent.on('itemClicked', this.selectFeature, this);
         busEvent.on('inputchanged',this.filterFeatures,this);
-        busEvent.on('emulchanged',this.emulation,this);       
+        busEvent.on('emulchanged',this.emulation,this);      
     }
     emulation(e)
     {
