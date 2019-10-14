@@ -9,7 +9,11 @@
  "data": {
     "searchkeys" : ["properties.nom"],
 	"uid": "id",
-    "url": "https://ows.region-bretagne.fr/geoserver/rb/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GETFEATURE&TYPENAME=lycee&outputFormat=application/json&srsName=EPSG:3857",
-    "template": "template.mst"
+    "url":  {  "Lycees Bretons":"https://ows.region-bretagne.fr/geoserver/rb/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GETFEATURE&TYPENAME=lycee&outputFormat=application/json&srsName=EPSG:3857",
+               "Ecluses Bretonnes":"https://ows.region-bretagne.fr/geoserver/rb/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=GETFEATURE&TYPENAME=ecluse&outputFormat=application/json&srsName=EPSG:3857"
+            },
+    "template": { "Lycees Bretons":"Lycees Bretons.mst",
+                  "Ecluses Bretonnes":"Ecluses Bretonnes.mst"
+               }
  }
 }

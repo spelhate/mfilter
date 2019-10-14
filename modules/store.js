@@ -26,6 +26,7 @@ var Fstore = class {
         this.data = [];
         this.filteredIDs = [];
         this.activefilter = false;
+        this.filteredlocations = null;
         this.toast = [
             '<div id="toast" class="toast" role="alert" data-autohide="false" aria-live="assertive" aria-atomic="true">',
                 '<div class="toast-header">',
@@ -34,7 +35,7 @@ var Fstore = class {
                       '<span aria-hidden="true">&times;</span>',
                     '</button>',
                 '</div>',
-                '<div id="toast-filter" class="toast-body">Aucun filtre</div>',
+                '<div id="toast-filter" class="toast-body"></div>',
             '</div>'
         ].join("");
         this.fuseOptions = {
@@ -47,16 +48,30 @@ var Fstore = class {
           keys: options.searchkeys
         }
 
-        this.initStore();
+        this.initStore("Lycees Bretons");
     }
-
-    initStore() {
+    changedataset (e) {
+        var dataset = $("#typeofdata").val();
+        this.initStore(dataset);
+    }
+    initStore(configdata) {
+        $("body").find("*").each(function() {
+            $(this).unbind();
+        });
+        $("#notifications").html("");
       $("#notifications").append(this.toast);
       $("#toast .close").click(this.removeFilter.bind(this));
       $("#btn-search").click(this.searchFeatures.bind(this));
+      $("#btn-typedata").click(this.changedataset.bind(this));
+      $(document).on("keydown", "#txt-search", function (e)  {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $("#btn-search").click();
+        }
+      });
       $.ajax({
           type: "GET",
-          url: this.options.template,
+          url: this.options.template[configdata],
           context: this,
           success: function( mst ) {
             this.template = mst;
@@ -64,14 +79,23 @@ var Fstore = class {
       });
       $.ajax({
           type: "GET",
-          url: this.options.url,
+          url: this.options.url[configdata],
           context: this,
           success: function( data ) {
+            $("#txt-search").html("");
+            $("#typeofdata").html("");
+            $("#team").remove();
+            data.title=configdata;
             this.data = data;
             this.fuse = new Fuse(data.features, this.fuseOptions);
             var render = Mustache.render(this.template, data);
+            var keys=Object.keys(this.options.url);
+            keys.forEach(function(key){
+                $("#typeofdata").append(new Option(key));
+            });
+            
             $("#store").append(render);
-			$(".item").click(this.onItemClick.bind(this));
+            $(".item").click(this.onItemClick.bind(this));
             busEvent.on('mapChanged', this.filterFeatures, this);
             busEvent.fire("storeLoaded", this);
           }
@@ -87,7 +111,9 @@ var Fstore = class {
 
     removeFilter (e) {
         this.filteredIDs = [];
+        this.filteredlocations=null;
         this.activefilter = false;
+        $("#toast-filter").text("");
 		$(".item:not(.selected)").addClass("selected");
         busEvent.fire("removeFilter", this);
     }
@@ -95,27 +121,55 @@ var Fstore = class {
     searchFeatures (e) {
         var value = $("#txt-search").val();
         if (value.length > 3) {
+            this.filteredlocations=null;
             this.filteredIDs = this.fuse.search(value).map(a => a[this.options.uid]);
-            this.filterFeatures({"target": this.filteredIDs, "type": "search"});
-            $("#txt-search").val("");
             $("#toast-filter").text(value);
+            $("#txt-search").val("");
+            this.filterFeatures({"target": this.filteredIDs,"type": "search"});
+            busEvent.fire("inputchanged",this);
+            busEvent.fire('emulchanged',this);
         }
     }
 
     filterFeatures(e) {
-        console.log(e);
+        var toastfilter = $("#toast-filter").text();
         var featuresIDs = e.target;
-		$(".item.selected").removeClass("selected");
-		featuresIDs.forEach(function(id) {
-			$(document.getElementById(id)).addClass("selected");
-
-		});
-		if (e.type && e.type === "search") {
+        if(toastfilter=="")
+        {
+            this.filteredlocations=[];
+            $(".item.selected").removeClass("selected");
+            featuresIDs.forEach(function(id) {
+                $(document.getElementById(id)).addClass("selected");
+            });
+        }
+        else
+        {
+            if(!this.filteredlocations)
+            {
+                this.filteredlocations=featuresIDs;
+            }
+            $(".item.selected").removeClass("selected");
+            for(let i=0;i<this.filteredlocations.length;i++)
+            {
+                for(let j=0;j<featuresIDs.length;j++)
+                {
+                    if(this.filteredlocations[i]==featuresIDs[j])
+                    {
+                        $(document.getElementById(this.filteredlocations[i])).addClass("selected");
+                    }
+                }
+            }
+            
+                      
+        }
+        if (e.type && e.type === "search") {
 			$("#toast").toast('show');
 			this.activefilter = true;
 		}
         busEvent.fire("storeFiltered", this);
+
     };
+   
 }
 
 module.exports = Fstore;

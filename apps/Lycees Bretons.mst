@@ -1,7 +1,7 @@
 <!-- Required item class and id for each feature -->
 <section id="team" class="pb-5">
     <div class="container">
-        <h5 class="section-title h1">Lycées bretons</h5>
+        <h5 class="section-title h1">{{title}}</h5>
         <div class="row">
             {{#features}}
             <div class="item selected col-xs-12 col-sm-6 col-md-4" id="{{id}}">
@@ -12,7 +12,7 @@
                                 <div class="card-body text-center">
                                     <p><img class=" img-fluid" src="{{properties.photo}}" alt="card image"></p>
                                     <h4 class="card-title">{{properties.nom}}</h4>
-                                    <p class="card-text">{{properties.adresse}} {{properties.code_postal}}, {{properties.libelle}}</p>
+                                    <p class="card-text">{{properties.adresse}} {{properties.code_postal}}, {{properties.ville}}</p>
                                 </div>
                             </div>
                         </div>
@@ -20,7 +20,7 @@
                             <div class="card">
                                 <div class="card-body text-center mt-4">
                                     <h4 class="card-title">{{properties.nom}}</h4>
-                                    <p class="card-text">This is basic card with image on top, title, description and button.This is basic card with image on top, title, description and button.This is basic card with image on top, title, description and button.</p>
+                                    <p class="card-text">Etablissement de l'{{properties.reseau_lib}} ({{properties.secteur_li}}) de type {{properties.type_etabl}} .</p>
                                     <ul class="list-inline">
                                         <li class="list-inline-item">
                                             <a class="social-icon text-xs-center" target="_blank" href="#">

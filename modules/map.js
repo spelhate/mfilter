@@ -2,6 +2,8 @@
  * @module map.js
  */
 import 'ol/ol.css';
+import LayerGroup from 'ol/layer/Group';
+import Group from 'ol/layer.js';
 import {
     Map,
     View
@@ -24,6 +26,7 @@ import {Circle, Fill, Stroke, Style} from 'ol/style.js';
 import Overlay from 'ol/Overlay';
 
 var busEvent = require('./bus');
+
 
 'use strict';
 
@@ -98,7 +101,6 @@ var Fmap = class {
 		var overlays = [];        
         this.marker = new Overlay({ positioning: 'bottom-center', element: $("#marker")[0], stopEvent: false})
         overlays.push(this.marker);
-
         this.map = new Map({
             target: 'map',
             layers: [
@@ -115,17 +117,27 @@ var Fmap = class {
                 zoom: this.options.zoom
             })
         });
-
         this.map.on('moveend', this.updateExtent.bind(this));
-
         busEvent.on('storeLoaded', this.loadFeatures, this);
-		busEvent.on('removeFilter', this.removeFilter, this);
+        busEvent.on('removeFilter', this.removeFilter, this);
         busEvent.fire("mapLoaded", this);
+        
 
     }
 
     loadFeatures(e) {
+        this.unSelectFeature();
+        var parent =this;
         var features = e.target.data;
+        if(this.map.getLayers().array_.length==2)
+        {
+            this.map.getLayers().forEach(function(layer){
+                if(layer.type=="VECTOR")
+                {
+                    parent.map.removeLayer(layer);
+                }
+            });
+        }
         this.source = new VectorSource({
             features: (new GeoJSON()).readFeatures(features)
         });
@@ -134,11 +146,18 @@ var Fmap = class {
             style: this.styles[1]
         });
         this.map.addLayer(vectorLayer);
+       
         var extent = this.source.getExtent();
         this.map.getView().fit(extent, this.map.getSize());
         busEvent.on('storeFiltered', this.filterFeatures, this);
-		busEvent.on('itemClicked', this.selectFeature, this);
-
+        busEvent.on('itemClicked', this.selectFeature, this);
+        busEvent.on('inputchanged',this.filterFeatures,this);
+        busEvent.on('emulchanged',this.emulation,this);      
+    }
+    emulation(e)
+    {
+        var view = this.map.getView();
+        view.animate({zoom: view.getZoom()+0.00001,duration:0});
     }
 
     updateExtent(e) {
@@ -153,6 +172,7 @@ var Fmap = class {
             });
             this.filteredIDs = _filteredIDs;
             busEvent.fire("mapChanged", this.filteredIDs );
+            
         }
 
     }
@@ -163,22 +183,48 @@ var Fmap = class {
 		$("#marker").show();
 	}
 	
-	unSelectFeature(e) {
-		this.selectedFeature
+	unSelectFeature() {
+        $("#marker").hide();
+        $(".highlighted").removeClass("highlighted");
 	}
 
     filterFeatures(e) {
         var _filteredIDs = e.target.filteredIDs;
-        if (_filteredIDs.length > 0 ) {
-            var styles = this.styles;            
+        var styles = this.styles;
+        var parent = this;
+        if (_filteredIDs.length > 0 ) {        
             this.source.forEachFeature(function(feature) {
                 if (_filteredIDs.includes(feature.getId())) {
                     feature.setStyle(styles[2]);
                 } else {
                     feature.setStyle(styles[0]);
+                    let feat = JSON.stringify(feature.getGeometry().getFirstCoordinate());
+                    let marque = JSON.stringify(parent.marker.getPosition());
+                    if(marque==feat)
+                    {
+                        parent.unSelectFeature();
+                    }
+                    
                 }
             });
             this.filteredIDs = _filteredIDs;
+        }
+        else
+        {
+            var filtre = $('#toast-filter').text();
+            this.source.forEachFeature(function(feature) {
+                if(filtre=="")
+                {
+                    feature.setStyle(styles[1]);
+                }
+                else
+                {
+                    feature.setStyle(styles[0]);
+ 
+                }
+                    
+            });
+            
         }
     }
 

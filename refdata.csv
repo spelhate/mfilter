@@ -1,0 +1,27 @@
+Lycee,Ecluse
+type: FeatureCollection,type: FeatureCollection
+FEATURES :,FEATURES:
+    type: Feature,   type: Feature,
+    id: lycee.0220013V,   id: ecluse.ECL_B28,
+    GEOMETRY : ,   GEOMETRY:
+        type: MultiPoint,      type: Point,
+        coordinates: -226657.6152 6184330.8472,      coordinates:-364733.6155 6077159.7529
+geometry_name: geom,geometry_name: geom
+PROPERTIES :,PROPERTIES:
+    code_rne: 0220013V,   id_ecluse: ECL_B28,
+    search_id: lycee.0220013V,   search_id: ecluse.ECL_B28,
+    nom: Lycée La Fontaine des Eaux,   nom: Polvern,
+    adresse: 48 promenade de la Fontaine des Eaux,   pk: 58.397,
+    code_postal: 22102,   remarque: ,
+    ville: DINAN,   affectation: null,
+    cedex: Cedex,   trafic: 55,
+    reseau_lib: Education nationale,   telephone: ,
+    secteur_li: Public,   photo: http://kartenn.region-bretagne.fr/img/vn/ecluse/ECL_B28.jpg,
+    type_etabl: LPO,   num_ecluse: 28,
+    photo: http://kartenn.region-bretagne.fr/img/lyc/0220013V.jpg,   voie_navigable: Blavet,
+    x: 327948.22,   proprietaire: Région Bretagne,
+    y: 6830016.5,   gestionnaire: Région Bretagne,
+    latitude: 48.4636,   bbox:
+    longitude: -2.0361,
+    gestion_rb: true,
+    bbox:,
